@@ -80,6 +80,8 @@ html,body {
 
 > 也可以选择监听$route，来改变transitionName
 
+<!--more-->
+
 ```js
 import Vue from 'vue'
 import Vuex from 'vuex'
