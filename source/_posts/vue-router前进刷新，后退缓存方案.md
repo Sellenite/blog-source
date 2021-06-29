@@ -75,7 +75,7 @@ Vue.use(VueRouter)
 > main.js
 
 ```js
-import store from '../store/index.js'
+import store from './store/index.js'
 
 window.addEventListener('popstate', function (e) {
   store.state.routerPushStatus = 'back'
@@ -140,7 +140,7 @@ export default new Vuex.Store({
 > ./util.js
 
 ```js
-import store from '../store/index.js'
+import store from './store/index.js'
 
 const addRouterCache = routeName => {
   store.commit('addToInclude', routeName)
