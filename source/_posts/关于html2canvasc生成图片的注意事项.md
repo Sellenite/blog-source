@@ -53,6 +53,7 @@ html2canvas(document.querySelector('.container'), options)
 
 ```css
 .image-wrapper {
+  display: flex;
   justify-content: center;
   align-items: center;
 }
