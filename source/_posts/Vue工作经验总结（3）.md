@@ -527,5 +527,31 @@ methods: {
 单页面admin有一种比较容易的方法，就是实际上就算维护了多级的路由，在addRoutes的时候弄成平级就可以了，这样不管是多少级路由，始终只有一个router-view，不是多级router-view了。只是要从后台进行一个路由树的配置，来渲染菜单栏，然后弄成平面的数组，放到addRouters里
 
 
+### 在vue实例外获取当前vue-router路由的信息及有关应用
 
+引入项目中export default出来的router实例，router对Vue实例有引用，可以据此访问到$route。其实dom树也引用了Vue实例，所以可以从dom的访问到所有的Vue相关的东西，比如组件等
 
+具体代码为`router.app.$route`
+
+这个一般应用在一些工具js，需要获取当前路由对应的组件信息进行一些操作，例如请求中断后跳转到对应的错误页面，放在axios的全局响应拦截器上
+
+```js
+import router from '@/router/index.js'
+
+function toErrorPage(config = {}) {
+  const pageName = router.app.$route.name;
+  // 防止递归错误
+  if (pageName !== 'ErrorPage') {
+    router.replace({
+      name: 'ErrorPage',
+      query: {
+        pageName,
+        message: config.message,
+        type: config.type,
+        originQuery: JSON.stringify(router.app.$route.query || {}),
+        originParams: JSON.stringify(router.app.$route.params || {})
+      }
+    })
+  }
+}
+```
