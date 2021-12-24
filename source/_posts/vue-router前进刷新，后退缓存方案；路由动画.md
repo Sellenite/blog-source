@@ -1,5 +1,5 @@
 ---
-title: vue-router前进刷新，后退缓存方案
+title: vue-router前进刷新，后退缓存方案；路由动画
 date: 2021-06-29 17:25:30
 tags:
 - Vue
@@ -18,6 +18,23 @@ tags:
 #### 重新定义路由跳转的函数
 
 由于全局需要监听函数是否前进/后退，需要重新编写路由的跳转函数，利用store，存储进入前的路由状态routerPushStatus，然后在全局路由守卫中获取这个值，以判断进入的是前进还是后退等：
+
+> ./store/index.js
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const state = {
+  routerPushStatus: 'push', // 路由进入前的状态push, replace, back，用于判断动画和缓存的机制
+}
+
+export default new Vuex.Store({
+  state,
+})
+```
 
 > ./router.js
 
@@ -175,6 +192,8 @@ const router = new VueRouter({
 export default router
 ```
 
+keep-alive的include和exclude实际需要的是组件内的name，设置为一样可以方便使用route的name进行管理
+
 
 
 > ./views/Home.vue
@@ -231,6 +250,10 @@ new Vue({
 
 #### 处理keep-alive的逻辑
 
+router-view结构：
+
+> 注意要将router-view的样式使用定位对齐到同一水平线，mode使用同时进出的动画
+
 > ./App.vue
 
 ```html
@@ -238,7 +261,7 @@ new Vue({
   <div class="app">
     <transition :name="routerAnimate">
       <keep-alive :include="includedComponents" :exclude="excludedComponents">
-        <router-view :key="$route.fullPath" />
+        <router-view class="view-page" :key="$route.fullPath" />
       </keep-alive>
     </transition>
   </div>
@@ -256,6 +279,26 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.app {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.view-page {
+  position: absolute;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow-x: hidden;
+}
+
 .slide-left-enter,
 .slide-right-leave-to {
   opacity: 0;
@@ -279,4 +322,4 @@ export default {
 
 
 
-自此为止完成了通用的APP使用vue&vue-router&vuex进行的前进刷新，后退缓存的方案。如果在提交某些订单返回后要删除缓存，使用utils.js里的removeRouterCache函数即可
+自此为止完成了通用的APP使用vue&vue-router&vuex进行的前进刷新，后退缓存的方案，且切换路由对应动画。如果在提交某些订单返回后要删除缓存，使用utils.js里的removeRouterCache函数即可
