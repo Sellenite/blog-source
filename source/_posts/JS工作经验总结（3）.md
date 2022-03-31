@@ -330,7 +330,7 @@ $.ajax({
 });
 ```
 
-### 递归遍历父元素找到对应的元素
+### 递归遍历父元素找到对应的DOM元素
 
 ```javascript
 function findAncestor (el, cls) {
@@ -345,7 +345,149 @@ npm i node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
 ```
 
 
+### 找到树中指定id的所有父节点(或包括自己)
+
+```javascript
+  const treeData = [{
+    id: 1,
+    children: [{
+      id: 2,
+      children: [{
+        id: 3,
+      }, {
+        id: 4,
+      }],
+    }],
+  }, {
+    id: 5,
+    children: [{
+      id: 6,
+    }],
+  }];
+
+  let relateNodes = []
+
+  const getRelateNodes = (his = [], targetId = null, tree = []) => {
+    for (const item of tree) {
+      const children = item.children || []
+      if (item.id === targetId) {
+        // 如果只要返回父元素们，就写成relateNodes = his
+        relateNodes = [...his, item]
+        return true
+      } else if (children.length > 0) {
+        const history = [...his]
+        history.push(item)
+        // 终止递归的条件
+        if (getRelateNodes(history, targetId, children)) {
+          break
+        }
+      }
+    }
+  }
+
+  // 要查找的对象里存在的id
+  const id = 4
+
+  getRelateNodes([], id, treeData)
+
+  // 返回各个父元素的对象合集，可用于修改数据，做像树组件的展开等数据变更
+  console.log(relateNodes)
+```
 
 
+### 遍历树把该层属于第几层树的属性写进去
+
+```javascript
+  const treeData = [{
+    id: 1,
+    children: [{
+      id: 2,
+      children: [{
+        id: 3,
+      }, {
+        id: 4,
+      }],
+    }],
+  }, {
+    id: 5,
+    children: [{
+      id: 6,
+    }],
+  }];
+
+ // 第几层递归
+  let level = 0
+  const fn = (arr = [], level) => {
+    for (let i = 0; i < arr.length; i++) {
+      const item = arr[i]
+      item.__level = level
+      if (!item.children) item.children = []
+      if (Array.isArray(item.children) && item.children.length) {
+        fn(item.children, level + 1)
+      }
+    }
+  }
+
+  fn(treeData, level)
+
+  console.log(treeData)
+```
+
+
+### scrollTo实现
+
+```javascript
+function easeInOutQuad(t, b, c, d) {
+  t /= d / 2
+  if (t < 1) {
+    return c / 2 * t * t + b
+  }
+  t--
+  return -c / 2 * (t * (t - 2) - 1) + b
+}
+
+const requestAnimFrame = (function() {
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) { window.setTimeout(callback, 1000 / 60) }
+})()
+
+function move($el, amount) {
+  if ($el) {
+    $el.scrollTop = amount
+  } else {
+    document.documentElement.scrollTop = amount
+    document.body.parentNode.scrollTop = amount
+    document.body.scrollTop = amount
+  }
+}
+
+function position($el) {
+  if ($el) {
+    return $el.scrollTop
+  } else {
+    return document.documentElement.scrollTop || document.body.parentNode.scrollTop || document.body.scrollTop
+  }
+}
+
+export default function scrollTo($el, to, duration, callback) {
+  const start = position($el)
+  const change = to - start
+  const increment = 20
+  let currentTime = 0
+  duration = (duration != null) ? 500 : duration
+  let animateScroll = function() {
+    currentTime += increment
+    const val = easeInOutQuad(currentTime, start, change, duration)
+    move($el, val)
+    if (currentTime < duration) {
+      requestAnimFrame(animateScroll)
+    } else {
+      if (callback && typeof (callback) === 'function') {
+        callback()
+      }
+    }
+  }
+  animateScroll()
+}
+```
 
 

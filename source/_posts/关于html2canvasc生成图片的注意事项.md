@@ -40,6 +40,10 @@ html2canvas(document.querySelector('.container'), options)
   })
 ```
 
+<!-- more -->
+
+#### 元素里面的图片渲染不清晰问题
+
 > 有两点需要特别注意，这关系到生成图片的质量
 
 1、img元素不要使用object-fit，html2canvas生成的图片不支持object-fit
@@ -106,3 +110,22 @@ template
 ```
 
 这样的html2canvas渲染出来里面的图片具有自适应contain的效果且清晰
+
+
+#### 渲染文字错位渲染不全的问题
+
+有时候渲染的容器需要有预留空位，不要使用margin作为预留左右空位，且overflow:hidden的手段，使用padding代替，这样就不会出现错误渲染字体的情况
+
+
+#### 非视野区域截图
+
+opacity为0，或者visibility为hidden，display：none，这样都无法解决非视野区域截图的问题
+
+使用top: -9999px，这样也是无法解决的
+
+只有使用层级最低的手段下才能做到非视野区域的截图
+
+```css
+top: 0px;
+z-index: -1;
+```
