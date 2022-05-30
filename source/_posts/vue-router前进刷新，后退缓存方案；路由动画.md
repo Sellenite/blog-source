@@ -19,6 +19,8 @@ tags:
 
 由于全局需要监听函数是否前进/后退，需要重新编写路由的跳转函数，利用store，存储进入前的路由状态routerPushStatus，然后在全局路由守卫中获取这个值，以判断进入的是前进还是后退等：
 
+加上全局datetime的query的目的是使$route的fullPath每次都不同，绑在了router-view组件的key上，这样可以保证每下一个页面都能被缓存，即使push的是相同name的页面
+
 > ./store/index.js
 
 ```js
@@ -43,7 +45,7 @@ import store from './store/index.js'
 import VueRouter from 'vue-router'
 import Vue from 'vue'
 
-const useRouter = VueRouter => {
+export const useRouter = VueRouter => {
   const routerPush = VueRouter.prototype.push
   const routerReplace = VueRouter.prototype.replace
   const routerGo = VueRouter.prototype.go
@@ -52,11 +54,25 @@ const useRouter = VueRouter => {
 
   VueRouter.prototype.push = function push(location, onComplete, onAbort) {
     store.state.routerPushStatus = 'push'
+    if (typeof location === 'object') {
+      if (location.hasOwnProperty('query')) {
+        location.query.__datetime = +new Date()
+      } else {
+        location.query = { __datetime: +new Date() }
+      }
+    }
     return routerPush.apply(this, [location, onComplete, onAbort])
   }
 
   VueRouter.prototype.replace = function replace(location, onComplete, onAbort) {
     store.state.routerPushStatus = 'replace'
+    if (typeof location === 'object') {
+      if (location.hasOwnProperty('query')) {
+        location.query.__datetime = +new Date()
+      } else {
+        location.query = { __datetime: +new Date() }
+      }
+    }
     return routerReplace.apply(this, [location, onComplete, onAbort])
   }
 

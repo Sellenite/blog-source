@@ -490,4 +490,38 @@ export default function scrollTo($el, to, duration, callback) {
 }
 ```
 
+### 根据数组对象的某个字段去重
+```javascript
+function uniqueArrayByObjectKey(arr, key) {
+  const res = new Map()
+  return arr.filter(item => !res.has(item[key]) && res.set(item[key], 1))
+}
+```
 
+### 简单数组去重
+```javascript
+function uniqueArray(arr) {
+  return Array.from(new Set(arr))
+}
+```
+
+
+### 多语言某些在中间需要替换语言
+
+例如：
+LANG = "The quantity of selected products:XXX; Subtotal:XXX"
+
+replacement = [1, 10]
+
+transformI18n(LANG, replacement)
+
+```javascript
+function transformI18n(key, replacement) {
+  if (!Array.isArray(replacement)) {
+    replacement = [replacement]
+  }
+  const regex = /(XXX)+/gi
+  let count = 0
+  return i18n.t(key).replace(regex, () => replacement[count++])
+}
+```
