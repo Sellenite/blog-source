@@ -7,4 +7,4 @@ tags:
 
 简单做了个Falcom日历轮播，画面太美
 
-[Falcom 2017 Calendar](/falcom)
+[Falcom 2017 Calendar](/falcom-swipe/index.html)
